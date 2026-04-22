@@ -2,9 +2,26 @@ Figural is the PM for your AI agents.
 
 AI agents forget what you decided. Figural gives them a persistent decision log that survives context windows, catches drift, and keeps every agent on the same page.
 
+## Using `figural-core` (npm package)
+
+**You use Figural through the npm package named `figural-core`.** You do not need to clone this repo to adopt it—only if you want to contribute or fork.
+
+| What you want | Exact command |
+| --- | --- |
+| Bootstrap a repo (creates `.figural/` and `.specpack.json`) | `npx figural-core init` |
+| Optional: watch the repo for drift locally | `npx figural-core watch` |
+| MCP server (usually you do **not** run this by hand; Cursor/Claude spawn it) | `npx figural-core mcp` |
+
+**Why `figural-core` and not `figural`?** This package is published on npm as **`figural-core`**. The executable name is **`figural`**, but **`npx`** resolves it from the package name, so the command line is always **`npx figural-core …`**. Any doc that says `npx figural init` refers to a different/wrapper package name—here the correct install line is **`npx figural-core init`**.
+
+**Optional global install** (so you can type `figural init` without `npx`):
+
 ```bash
-npx figural-core init
+npm install -g figural-core
+figural init
 ```
+
+After `init`, paste the printed MCP config into Cursor or Claude Code so the agent can call `figural_get_spec` and `figural_log_decision`.
 
 ## 60-second quickstart
 
@@ -14,36 +31,15 @@ From your repo root:
 npx figural-core init
 ```
 
-Then do the two copy/paste steps it prints:
+Then:
 
-- Paste the 3 instruction lines into `CLAUDE.md`
-- Paste the MCP config JSON into Cursor or Claude Code settings
+1. Paste the **3 lines** into `CLAUDE.md` (they tell the agent how to use Figural).
+2. Paste the **MCP config JSON** into Cursor or Claude Code settings (same command: `npx -y figural-core mcp`).
+3. In Claude Code, run `/figural-scope` (prompts live under `./prompts/`).
 
-Now open Claude Code and run:
+That writes your first scope decision to `.figural/log.json`. Next session, agents read `.specpack.json` and `.figural/log.json` before coding.
 
-```text
-/figural-scope
-```
-
-That logs your initial scope decision into `.figural/log.json`. In future sessions, have your agent read `.specpack.json` + `.figural/log.json` before doing work.
-
-## Quick start
-
-From your repo root, run:
-
-```bash
-npx figural-core init
-```
-
-This creates:
-
-- `.figural/log.json`
-- `.specpack.json`
-
-Then it prints:
-
-- 3 lines to paste into `CLAUDE.md`
-- MCP config JSON blocks (Cursor + Claude Code)
+`npx figural-core init` also creates the two files above and prints the `CLAUDE.md` lines plus both MCP config blocks (you already used those in steps 1–2).
 
 ### What the first decision looks like
 
@@ -149,6 +145,17 @@ Fields:
 - `edge_cases` (string[])
 - `acceptance_tests` (string[])
 - `evidence_refs` (string[])
+
+**JSON Schema (for editors and validation):**
+
+| File | Use when |
+| --- | --- |
+| [schemas/specpack.local.v1.schema.json](schemas/specpack.local.v1.schema.json) | You use `npx figural-core init` and edit `.specpack.json` locally (`in_scope`, `out_of_scope`, …). |
+| [schemas/specpack.webapp.v1.schema.json](schemas/specpack.webapp.v1.schema.json) | Your spec comes from the **Figural web app** export (`scope_in`, `scope_out`, structured `tests`, `success`, …). |
+
+The webapp format matches the richer shape (given/when/then tests, success metrics, structured edge cases and evidence). Local format uses simpler string arrays for the same ideas.
+
+**Pasting a spec from the Figural web app:** You can replace `.specpack.json` with a JSON export from the Figural web app as-is. `figural_get_spec` returns that file verbatim to your agent. **`figural watch`** and other tooling normalize webapp fields internally (`scope_in` / `scope_out` map to the same roles as `in_scope` / `out_of_scope`). Your agent should treat `scope_out` and `out_of_scope` as the same concept when reading raw JSON via MCP.
 
 ## Contributing
 
