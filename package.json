@@ -1,0 +1,36 @@
+{
+  "name": "figural-core",
+  "version": "0.1.0",
+  "description": "Figural is the PM for your AI agents.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "figural": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "prompts",
+    "schemas",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+
