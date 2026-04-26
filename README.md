@@ -109,6 +109,63 @@ npm install -g figural-core
 figural init
 ```
 
+## Claude Code setup (step-by-step)
+
+### 1) Run init
+
+From your repo root:
+
+```bash
+npx figural-core init
+```
+
+### 2) Add the agent instructions
+
+Paste the printed 3 lines into `CLAUDE.md`. That tells Claude Code to:
+- read the spec before acting
+- log decisions via `figural_log_decision`
+- flag contradictions
+
+### 3) Configure MCP for Claude Code
+
+Paste the printed **Claude Code MCP config JSON** into Claude Code’s MCP/server settings.
+
+If Claude Code supports a working directory field, set it to your repo root (same reason as Cursor): the MCP server must start with `cwd` pointing at the folder containing `.specpack.json`.
+
+### 4) Use the prompts
+
+Run:
+- `/figural-scope` once to log initial scope
+- `/figural-decide` at forks
+- `/figural-watch` after significant changes (or run `npx figural-core watch` in a terminal)
+
+## Codex setup (step-by-step)
+
+Codex works if your Codex environment supports **MCP tool servers** (stdio) and lets the model call tools.
+
+### 1) Run init
+
+```bash
+npx figural-core init
+```
+
+### 2) Configure MCP (critical: working directory)
+
+Configure an MCP server that runs:
+
+- `command`: `npx`
+- `args`: `["-y", "figural-core", "mcp"]`
+- `cwd`: set to your repo root (the folder containing `.specpack.json`)
+
+If Codex doesn’t let you set `cwd`, you need to run the server from the repo root (or use a project-scoped config if available). If `cwd` is wrong, `figural_get_spec` will read a different file and may look blank.
+
+### 3) Give Codex the workflow
+
+Since Codex may not support Claude Code-style slash commands, use the prompt templates under `prompts/` by pasting them into your Codex “project instructions” or into the chat when needed:
+- `prompts/figural-scope.md`
+- `prompts/figural-decide.md`
+- `prompts/figural-watch.md`
+
 ## MCP tools
 
 Two tools, automatically available to any agent once configured:
@@ -230,7 +287,7 @@ node dist/cli/index.js watch
 - Drift detection heuristics (deterministic and low-noise)
 - Docs + examples (real repos, real spec packs)
 
-Built by Neeha and Shaurya at figural.world.
+Built by Neeha and Shaurya at https://figural.world.
 
 MIT licence.
 
