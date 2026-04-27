@@ -6,6 +6,8 @@ They rebuild things you already rejected. They contradict each other across sess
 
 Figural fixes that. A persistent decision log and structured spec that your agents read before they act and write back to after they decide.
 
+Join our Discord here: https://discord.gg/E2ThS3wvtS
+
 ## What it looks like
 
 After one `npx figural-core init` and one `/figural-scope`, your repo has this:
@@ -247,7 +249,7 @@ This package is published on npm as `figural-core`. The executable is `figural`,
 
 ## Contributing
 
-Issues and PRs welcome. If you're adopting `.specpack.json` in your repo or building tooling around it, open an issue and tell us what the format needs to handle. Join our discord here: https://discord.gg/E2ThS3wvtS
+Issues and PRs welcome. If you're adopting `.specpack.json` in your repo or building tooling around it, open an issue and tell us what the format needs to handle.
 
 ### Local development
 
