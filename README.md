@@ -247,7 +247,7 @@ This package is published on npm as `figural-core`. The executable is `figural`,
 
 ## Contributing
 
-Issues and PRs welcome. If you're adopting `.specpack.json` in your repo or building tooling around it, open an issue and tell us what the format needs to handle.
+Issues and PRs welcome. If you're adopting `.specpack.json` in your repo or building tooling around it, open an issue and tell us what the format needs to handle. Join our discord here: https://discord.gg/E2ThS3wvtS
 
 ### Local development
 
