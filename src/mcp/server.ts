@@ -4,12 +4,14 @@ import * as z from "zod";
 import { McpServer, StdioServerTransport } from "@modelcontextprotocol/server";
 
 import { readJsonFile, writeJsonFile } from "../core/files.js";
+import { withFileLock } from "../core/lock.js";
 import { appendDecision } from "../core/log.js";
 
 export async function runMcpServer(opts: { cwd: string }): Promise<void> {
   const repoRoot = opts.cwd;
   const specPath = path.join(repoRoot, ".specpack.json");
   const logPath = path.join(repoRoot, ".figural", "log.json");
+  const logLockPath = path.join(repoRoot, ".figural", "log.json.lock");
 
   const server = new McpServer({ name: "figural-core", version: "0.1.0" });
 
@@ -45,11 +47,14 @@ export async function runMcpServer(opts: { cwd: string }): Promise<void> {
       })
     },
     async (args) => {
-      const result = await appendDecision({
-        logPath,
-        input: args
+      const result = await withFileLock(logLockPath, async () => {
+        const appended = await appendDecision({
+          logPath,
+          input: args
+        });
+        await writeJsonFile(logPath, appended.updatedLog);
+        return appended;
       });
-      await writeJsonFile(logPath, result.updatedLog);
 
       // Per PDF: return the new entry id.
       return {

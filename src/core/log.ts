@@ -70,8 +70,22 @@ export async function appendDecision(opts: {
   let log: FiguralLog;
   try {
     log = await readJsonFile<FiguralLog>(opts.logPath);
-  } catch {
-    log = { schema_version: "1.0", decisions: [] };
+  } catch (error) {
+    const isMissingFile =
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as NodeJS.ErrnoException).code === "ENOENT";
+
+    if (isMissingFile) {
+      log = { schema_version: "1.0", decisions: [] };
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to parse decision log at ${opts.logPath}. Refusing to overwrite existing history. ` +
+          `Repair or remove the invalid file, then retry. Underlying error: ${message}`
+      );
+    }
   }
 
   const id = nextId(log.decisions);
