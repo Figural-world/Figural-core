@@ -1,12 +1,14 @@
 import path from "node:path";
 import { appendDecision } from "../../core/log.js";
 import { writeJsonFile } from "../../core/files.js";
+import { withFileLock } from "../../core/lock.js";
 import { runDriftCheck } from "../../watch/driftCheck.js";
 import { startWatcher } from "../../watch/watcher.js";
 
 export async function runWatch(opts: { cwd: string }): Promise<void> {
   const repoRoot = opts.cwd;
   const logPath = path.join(repoRoot, ".figural", "log.json");
+  const logLockPath = path.join(repoRoot, ".figural", "log.json.lock");
 
   process.stdout.write("figural watch: watching for drift (Ctrl+C to stop)\n");
 
@@ -26,23 +28,25 @@ export async function runWatch(opts: { cwd: string }): Promise<void> {
 
         process.stderr.write(`\\n${decision}\\n${rationale}\\n`);
 
-        const appended = await appendDecision({
-          logPath,
-          input: {
-            decision,
-            rationale,
-            confidence: 0.7,
-            domain: "drift",
-            source: "agent",
-            context: {
-              changed_paths: changedPaths,
-              violations: result.violations,
-              recommended_action: result.recommended_action
+        await withFileLock(logLockPath, async () => {
+          const appended = await appendDecision({
+            logPath,
+            input: {
+              decision,
+              rationale,
+              confidence: 0.7,
+              domain: "drift",
+              source: "agent",
+              context: {
+                changed_paths: changedPaths,
+                violations: result.violations,
+                recommended_action: result.recommended_action
+              }
             }
-          }
-        });
+          });
 
-        await writeJsonFile(logPath, appended.updatedLog);
+          await writeJsonFile(logPath, appended.updatedLog);
+        });
       }
     });
   } catch (e) {
